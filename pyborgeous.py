@@ -7,8 +7,9 @@
 
 
 import argparse
+# import random
 import sys
-import string  # Do I really really need this?
+import string
 from unicodedata import category
 
 
@@ -38,7 +39,7 @@ This library can utilize all printable Unicode characters.""",
                                      epilog="Check http://github.com/Spacehug/pyborgeous for updates")
 
 # Capitalization of protected stuff DONE
-arg_parser._positionals.title = 'Positional arguments'  # I know this is bad, okay
+arg_parser._positionals.title = 'Positional arguments'  # I know this is bad
 arg_parser._optionals.title = 'Optional arguments'      # Tell me if you know a better way, please
 
 # Optional arguments DONE
@@ -115,7 +116,7 @@ Usage: pyborgeous -sf text.txt
 
 """)
 arg_ngroup.add_argument("-t", "--test", action="store_true", dest="test", help="""
-Test current developement operation behavior
+Test the current development operation behavior
 Returns result from "if __name__ == '__main__' and args.test:" block.
 
 """)
@@ -128,6 +129,26 @@ def generate_unicode_string():
     return ''.join(filter(lambda x: category(x) not in skip_cats, map(chr, range(sys.maxunicode))))
 
 
+def int_to_base(number, basestring):
+    digits = []
+    base = len(basestring)
+    while number:
+        digits.append(basestring[number % base])
+        number //= base
+    digits.reverse()
+    return ''.join(digits)
+
+
+def text_to_number(text):
+    new = bytes(text, 'utf-8')
+    return int.from_bytes(new, byteorder='little')
+
+
+def number_to_text(number):
+    text = number.to_bytes((number.bit_length() + 7) // 8, byteorder='little')
+    return text.decode("utf-8")
+
+
 def get_encode_string(mode, charset, charset_file):
     if mode:
         if mode == 'binary':
@@ -137,7 +158,7 @@ def get_encode_string(mode, charset, charset_file):
         elif mode == 'borges':
             return 'abcdefghijlmnoprstuvyz, .'
         elif mode == 'classic':
-            return string.ascii_lowercase + ', .'
+            return string.ascii_letters + ', .'
         elif mode == 'unicode':
             return generate_unicode_string()
         else:
@@ -149,17 +170,7 @@ def get_encode_string(mode, charset, charset_file):
         charset_string.load()
         return charset_string.data
     else:
-        raise NotImplementedError("I don't know how did you get this.")
-
-
-def convert_int_to_base(number, basestring):
-    digits = []
-    base = len(basestring)
-    while number:
-        digits.append(basestring[number % base])
-        number //= base
-    digits.reverse()
-    return ''.join(digits)
+        raise NotImplementedError("I don't really know how did you get this.")
 
 
 class DataFile:
@@ -178,5 +189,4 @@ class DataFile:
 
 
 if __name__ == '__main__' and command_line.test:
-    print(command_line.charset, command_line.charset_file, command_line.mode)
-    print(get_encode_string(command_line.mode, command_line.charset, command_line.charset_file))
+    pass
