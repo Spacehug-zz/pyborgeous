@@ -29,21 +29,41 @@ class Page:
                     self.text = text
                     self.address = None
 
-    def get_page_text_by_address(self, address):
+    def get_page_text_by_address(self):
         pass
 
-    def get_address_by_page_text(self, text):
+    def get_address_by_page_text(self):
+        space = ' '
+        if len(self.text) < self.characters_per_page:
+            self.text += space * (self.characters_per_page - len(self.text))
+        elif len(self.text) > self.characters_per_page:
+            self.text = self.text[:self.characters_per_page]
+        magic_number = helpers.string_to_int(self.text)
+        address = self.coords(magic_number)
+        return '\t'.join(address)
+
+    def get_address_by_page_text_random(self):
         pass
 
-    def get_address_by_page_text_random(self, text):
+    def get_page_title_by_address(self):
         pass
 
-    def get_page_title_by_address(self, address):
-        pass
+    def coords(self, magic_number):
+        page_number = str(magic_number % self.pages_per_book)
+        magic_number = - (magic_number // - self.pages_per_book)
+        book = str(magic_number % self.books_per_shelf)
+        magic_number = - (magic_number // - self.books_per_shelf)
+        shelf = str(magic_number % self.shelves_per_bookcase)
+        magic_number = - (magic_number // - self.shelves_per_bookcase)
+        bookcase = str(magic_number % self.bookcases_per_room)
+        magic_number = - (magic_number // - self.bookcases_per_room)
+        room = helpers.int_to_base(magic_number, self.encode_string)
+        address = [room, bookcase, shelf, book, page_number]
+        return address
 
 current_page = Page(helpers.get_encode_string(),
                     helpers.get_address(),
                     helpers.get_text())
 
 if __name__ == '__main__' and helpers.command_line.test:
-    print(current_page.__dict__)
+    print(current_page.get_address_by_page_text())
