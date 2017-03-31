@@ -3,7 +3,7 @@ import string
 from sys import maxunicode
 from unicodedata import category
 
-version_number = '0.1.1'
+version_number = '0.2.1'
 
 
 class CapitalisedHelpFormatter(argparse.RawTextHelpFormatter):
@@ -64,13 +64,15 @@ If you want to use custom charset, use -c 'abcde' or -cf 'charset.txt'
 
 """)
 arg_mgroup.add_argument("-c", "--charset", dest="charset", help="""
-Build the library using given charset
+Build the library using custom charset
 Usage: pyborgeous -c '0123456789ABCDEF'
+Warning: don't use \\t (ASCII TAB) control character, or there will be trouble.
 
 """)
 arg_mgroup.add_argument("-cf", "--charset-file", dest="charset_file", help="""
-Build the library using given charset from a file
+Build the library using custom charset from a file
 Usage: pyborgeous -cf 'charset.txt'
+Warning: don't use \\t (ASCII TAB) control character in your file, or there will be trouble.
 
 """)
 
@@ -82,28 +84,33 @@ Usage: pyborgeous -p <LONG ADDRESS>
 """)
 arg_ngroup.add_argument("-af", "--address-file", dest="address_file", help="""
 Find a page by address from a file
+Format should be: room\\tbookcase[1-4]\\tshelf[1-5]\\tbook[1-32]\\tpage_number[1-410]
+\\t is ASCII TAB control character, not literal \\t
 Usage: pyborgeous -af 'address.txt'
 
 """)
 arg_ngroup.add_argument("-s", "--search", dest="search_text", help="""
 Find a page that contains only the text given and nothing else
 Usage: pyborgeous -s 'The first colony on Mars was founded in 2031'
+Note: Text longer than 3200 symbols will be truncated
 
 """)
 arg_ngroup.add_argument("-sr", "--search-random", dest="search_text_random", help="""
 Find a page that contains the text given, along with random words/symbols
 Usage: pyborgeous -sr 'The first colony on Mars was founded in 2031'
+Note: Text longer than 3200 symbols will be truncated
 
 """)
 arg_ngroup.add_argument("-st", "--search-title", dest="search_title", help="""
 Find a title that contains the given text
-Only the first 25 characters will be processed
 Usage: pyborgeous -st 'The first Martian colony'
+Note: Only the first 25 characters will be processed
 
 """)
 arg_ngroup.add_argument("-sf", "--search-file", dest="text_file", help="""
 Find a page that contains only the text from a file and nothing else
 Usage: pyborgeous -sf text.txt
+Note: Text longer than 3200 symbols will be truncated
 
 """)
 
@@ -121,6 +128,13 @@ def generate_unicode_string(mode):
                      'Pc', 'Pd', 'Ps', 'Pe', 'Pi', 'Pf', 'Po',
                      'Sm', 'Sc', 'Sk', 'So')
     return ''.join(filter(lambda x: category(x) not in skip_cats, map(chr, range(maxunicode))))
+
+
+def base_to_int(basenumber, basestring):
+    integer = 0
+    for digit in str(basenumber):
+        integer = integer * len(basestring) + basestring.index(digit)
+    return integer
 
 
 def int_to_base(number, basestring):
