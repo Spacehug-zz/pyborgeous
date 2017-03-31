@@ -3,7 +3,7 @@ import string
 from sys import maxunicode
 from unicodedata import category
 
-version_number = '0.2.1'
+version_number = '0.2.2'
 
 
 class CapitalisedHelpFormatter(argparse.RawTextHelpFormatter):
@@ -47,10 +47,10 @@ Test the current development operation behavior
 Returns result from "if __name__ == '__main__' and args.test:" block.
 
 """)
-arg_parser.add_argument("-d", "--dump", dest="file", default="result.txt", help="""
+arg_parser.add_argument("-d", "--dump", dest="file", help="""
 Dump the result to specified file
 Default: 'result.txt'
-Usage: pyborgeous -d 'test.txt'
+Usage: pyborgeous -d 'result.txt'
 
 """)
 
@@ -101,12 +101,6 @@ Usage: pyborgeous -sr 'The first colony on Mars was founded in 2031'
 Note: Text longer than 3200 symbols will be truncated
 
 """)
-arg_ngroup.add_argument("-st", "--search-title", dest="search_title", help="""
-Find a title that contains the given text
-Usage: pyborgeous -st 'The first Martian colony'
-Note: Only the first 25 characters will be processed
-
-""")
 arg_ngroup.add_argument("-sf", "--search-file", dest="text_file", help="""
 Find a page that contains only the text from a file and nothing else
 Usage: pyborgeous -sf text.txt
@@ -120,7 +114,8 @@ command_line = arg_parser.parse_args()
 
 def generate_unicode_string(mode):
     if mode == 'regular':
-        skip_cats = ('Cc', 'Cf', 'Cs', 'Co', 'Cn', 'Zl', 'Zp')
+        skip_cats = ('Cc', 'Cf', 'Cs', 'Co', 'Cn',
+                     'Zl', 'Zp')
     elif mode == 'address':
         skip_cats = ('Cc', 'Cf', 'Cs', 'Co', 'Cn',
                      'Zl', 'Zs', 'Zp',
@@ -160,7 +155,8 @@ def int_to_string(number):
 def get_address():
     if command_line.address_file:
         current_address = DataFile(command_line.address_file)
-        return current_address.load()
+        current_address.load()
+        return current_address.data
     elif command_line.address:
         return command_line.address
     else:
@@ -172,9 +168,7 @@ def get_text():
         return command_line.search_text
     elif command_line.search_text_random:
         return command_line.search_text_random
-    elif command_line.search_title:
-        return command_line.search_title
-    elif command_line.search_file:
+    elif command_line.text_file:
         current_text = DataFile(command_line.search_file)
         return current_text.load()
     else:
@@ -219,4 +213,4 @@ class DataFile:
 
     def save(self):
         with open(self.file_name, 'w', encoding='utf-8') as output_file:
-            output_file.write(self.data)
+            output_file.writelines(self.data)
