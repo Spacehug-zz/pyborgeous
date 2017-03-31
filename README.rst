@@ -1,6 +1,6 @@
-=====================================================
+==========
 pyborgeous
-=====================================================
+==========
 pyborgeous is an implementation of https://en.wikipedia.org/wiki/The_Library_of_Babel.
 
 This library can utilize all printable Unicode characters.
