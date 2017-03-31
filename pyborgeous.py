@@ -49,13 +49,13 @@ class Page:
         pass
 
     def coords(self, magic_number):
-        page_number = str(magic_number % self.pages_per_book)
+        page_number = str(magic_number % self.pages_per_book + 1)
         magic_number = - (magic_number // - self.pages_per_book)
-        book = str(magic_number % self.books_per_shelf)
+        book = str(magic_number % self.books_per_shelf + 1)
         magic_number = - (magic_number // - self.books_per_shelf)
-        shelf = str(magic_number % self.shelves_per_bookcase)
+        shelf = str(magic_number % self.shelves_per_bookcase + 1)
         magic_number = - (magic_number // - self.shelves_per_bookcase)
-        bookcase = str(magic_number % self.bookcases_per_room)
+        bookcase = str(magic_number % self.bookcases_per_room + 1)
         magic_number = - (magic_number // - self.bookcases_per_room)
         room = helpers.int_to_base(magic_number, self.encode_string)
         address = [room, bookcase, shelf, book, page_number]
