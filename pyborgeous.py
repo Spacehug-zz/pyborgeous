@@ -2,17 +2,15 @@
 # Started 2017/03/27
 
 import helpers
-# import random
+import random
 
 
 class Page:
 
-    characters_per_title = 25
-    characters_per_page = 3200
-    pages_per_book = 410
-    books_per_shelf = 32
-    shelves_per_bookcase = 5
-    bookcases_per_room = 4
+    # [Pages per book, books per shelf, shelves per bookcase, bookcases per room]
+    library_configuration = [410, 32, 5, 4, 0]
+    # [Characters per page, characters per title]
+    page_configuration = [3200, 25]
 
     def __init__(self, encode_string, address, text):
         self.encode_string = encode_string
@@ -30,40 +28,81 @@ class Page:
                     self.address = None
 
     def get_page_text_by_address(self):
-        pass
+        room, bookcase, shelf, book, page_number = self.address.split('\t')
+        magic_number = helpers.base_to_int(room, self.encode_string)
+        magic_number = magic_number * self.library_configuration[3] + int(bookcase)
+        magic_number = magic_number * self.library_configuration[2] + int(shelf)
+        magic_number = magic_number * self.library_configuration[1] + int(book)
+        magic_number = magic_number * self.library_configuration[0] + int(page_number)
+        self.text = helpers.int_to_string(magic_number)
+        return self.text
 
     def get_address_by_page_text(self):
         space = ' '
-        if len(self.text) < self.characters_per_page:
-            self.text += space * (self.characters_per_page - len(self.text))
-        elif len(self.text) > self.characters_per_page:
-            self.text = self.text[:self.characters_per_page]
+        if len(self.text) < self.page_configuration[0]:
+            self.text += space * (self.page_configuration[0] - len(self.text))
+        elif len(self.text) > self.page_configuration[0]:
+            self.text = self.text[:self.page_configuration[0]]
         magic_number = helpers.string_to_int(self.text)
-        address = self.coords(magic_number)
-        return '\t'.join(address)
+        self.address = '\t'.join(self.coordinates(magic_number))
+        return self.address
 
     def get_address_by_page_text_random(self):
-        pass
+        if len(self.text) < self.page_configuration[0]:
+            postfix_range = random.randrange(self.page_configuration[0] - len(self.text) - 1)
+            prefix_range = self.page_configuration[0] - len(self.text) - postfix_range
+            prefix = ''.join(random.choice(self.encode_string) for a in range(prefix_range))
+            postfix = ''.join(random.choice(self.encode_string) for b in range(postfix_range))
+            self.text = prefix + self.text + postfix
+        elif len(self.text) > self.page_configuration[0]:
+            self.text = self.text[:self.page_configuration[0]]
+        magic_number = helpers.string_to_int(self.text)
+        self.address = '\t'.join(self.coordinates(magic_number))
+        return self.address
 
-    def get_page_title_by_address(self):
-        pass
-
-    def coords(self, magic_number):
-        page_number = str(magic_number % self.pages_per_book + 1)
-        magic_number = - (magic_number // - self.pages_per_book)
-        book = str(magic_number % self.books_per_shelf + 1)
-        magic_number = - (magic_number // - self.books_per_shelf)
-        shelf = str(magic_number % self.shelves_per_bookcase + 1)
-        magic_number = - (magic_number // - self.shelves_per_bookcase)
-        bookcase = str(magic_number % self.bookcases_per_room + 1)
-        magic_number = - (magic_number // - self.bookcases_per_room)
-        room = helpers.int_to_base(magic_number, self.encode_string)
-        address = [room, bookcase, shelf, book, page_number]
+    def coordinates(self, magic_number):
+        address = []
+        for value in self.library_configuration:
+            if value == 0:
+                address.append(helpers.int_to_base(magic_number, self.encode_string))
+            else:
+                result_value = magic_number % value
+                magic_number = - (magic_number - result_value) // - value
+                address.append(str(result_value))
+        address.reverse()
         return address
 
-current_page = Page(helpers.get_encode_string(),
-                    helpers.get_address(),
-                    helpers.get_text())
+
+def run_script():
+    data_to_write = ''
+    current_page = Page(helpers.get_encode_string(),
+                        helpers.get_address(),
+                        helpers.get_text())
+
+    if helpers.command_line.search_text:
+        current_page.get_address_by_page_text()
+        data_to_write = current_page.address
+        print(current_page.address)
+    elif helpers.command_line.text_file:
+        current_page.get_address_by_page_text()
+        data_to_write = current_page.address
+        print(current_page.address)
+    elif helpers.command_line.search_text_random:
+        current_page.get_address_by_page_text_random()
+        data_to_write = current_page.address
+        print(current_page.address)
+    elif helpers.command_line.address or helpers.command_line.address_file:
+        current_page.get_page_text_by_address()
+        data_to_write = current_page.text
+        print(current_page.text)
+
+    if helpers.command_line.file:
+        storage = helpers.DataFile(helpers.command_line.file, data_to_write)
+        storage.save()
+        print("File " + helpers.command_line.file + " has been written.")
+
+
+run_script()
 
 if __name__ == '__main__' and helpers.command_line.test:
-    print(current_page.get_address_by_page_text())
+    pass
