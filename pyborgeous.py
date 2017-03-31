@@ -73,7 +73,7 @@ class Page:
         return address
 
 
-def run_script():
+def main():
     data_to_write = ''
     current_page = Page(helpers.get_encode_string(),
                         helpers.get_address(),
@@ -101,8 +101,5 @@ def run_script():
         storage.save()
         print("File " + helpers.command_line.file + " has been written.")
 
-
-run_script()
-
-if __name__ == '__main__' and helpers.command_line.test:
-    pass
+if __name__ == '__main__':
+    main()

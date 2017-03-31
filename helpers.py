@@ -42,11 +42,6 @@ Show program version number and exit
 Usage: pyborgeous -v
 
 """)
-arg_parser.add_argument("-t", "--test", action="store_true", dest="test", help="""
-Test the current development operation behavior
-Returns result from "if __name__ == '__main__' and args.test:" block.
-
-""")
 arg_parser.add_argument("-d", "--dump", dest="file", help="""
 Dump the result to specified file
 Default: 'result.txt'
@@ -180,7 +175,7 @@ def get_encode_string():
         if command_line.mode == 'binary':
             return '01'
         elif command_line.mode == 'morse':
-            return '-. '
+            return ' -.'
         elif command_line.mode == 'borges':
             return 'abcdefghijlmnoprstuvyz, .'
         elif command_line.mode == 'classic':
