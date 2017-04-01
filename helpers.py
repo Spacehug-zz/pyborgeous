@@ -3,7 +3,7 @@ import string
 from sys import maxunicode
 from unicodedata import category
 
-version_number = '0.2.2'
+version_number = '0.2.3'
 
 
 class CapitalisedHelpFormatter(argparse.RawTextHelpFormatter):
