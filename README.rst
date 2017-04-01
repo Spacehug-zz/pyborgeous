@@ -29,6 +29,7 @@ This will generate the exact page on given address. The address should be in the
 e.g. unicode in this case.
 
 
+
 **Example**:
 
 ``pyborgeous -m full -s 'Elon Musk became the president of planet Earth in 2029'``
