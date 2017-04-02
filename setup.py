@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pyborgeous',
-    version='0.2.3',
+    version='0.2.4',
     description='Pyborgeous',
     long_description=long_description,
     url='https://github.com/Spacehug/pyborgeous',
@@ -20,12 +20,11 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.6.1',
     ],
     keywords='jorge luis borges library unicode',
-    packages=find_packages(),
+    packages=[package for package in find_packages()],
     entry_points={
         'console_scripts': [
             'pyborgeous=pyborgeous:main',
