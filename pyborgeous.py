@@ -6,7 +6,7 @@ from collections import namedtuple
 from sys import maxunicode
 from unicodedata import category
 
-__VERSION__ = '0.2.6'
+__VERSION__ = '0.2.7'
 
 
 class Page:
