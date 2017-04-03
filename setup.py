@@ -26,6 +26,7 @@ setup(
         'Programming Language :: Python :: 3.6.1',
     ],
     keywords='jorge luis borges library unicode',
+    scripts=['pyborgeous'],
     packages=[package for package in find_packages()],
     entry_points={
         'console_scripts': [
