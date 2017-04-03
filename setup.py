@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pyborgeous',
-    version='0.2.4',
+    version='0.2.5',
     description='Pyborgeous',
     long_description=long_description,
     url='https://github.com/Spacehug/pyborgeous',

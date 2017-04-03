@@ -6,6 +6,8 @@ from collections import namedtuple
 from sys import maxunicode
 from unicodedata import category
 
+__VERSION__ = '0.2.5'
+
 
 class Page:
     """
@@ -161,23 +163,34 @@ def main():
     arg_parser._optionals.title = 'Optional arguments'      # Tell me if you know a better way, please
 
     # Optional arguments
-    arg_parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS, help=docstrings.HELP_HELP)
-    arg_parser.add_argument("-v", "--version", action="version", version="%(prog)s", help=docstrings.HELP_VERSION)
-    arg_parser.add_argument("-o", "--output", dest="output_file", help=docstrings.HELP_OUTPUT)
+    arg_parser.add_argument("-h", "--help", action="help",
+                            default=argparse.SUPPRESS, help=docstrings.HELP_HELP)
+    arg_parser.add_argument("-v", "--version", action="version",
+                            version="%(prog)s {0}".format(__VERSION__), help=docstrings.HELP_VERSION)
+    arg_parser.add_argument("-o", "--output",
+                            dest="output_file", help=docstrings.HELP_OUTPUT)
 
     # Mutually exclusive arguments group for charset
     arg_charset = arg_parser.add_mutually_exclusive_group(required=True)
-    arg_charset.add_argument("-c", "--charset", dest="charset", help=docstrings.HELP_CHARSET)
-    arg_charset.add_argument("-cm", "--charset-mode", dest="charset_mode", help=docstrings.HELP_CHARSET_MODE)
-    arg_charset.add_argument("-cf", "--charset-file", dest="charset_file", help=docstrings.HELP_CHARSET_FILE)
+    arg_charset.add_argument("-c", "--charset",
+                             dest="charset", help=docstrings.HELP_CHARSET)
+    arg_charset.add_argument("-cm", "--charset-mode",
+                             dest="charset_mode", help=docstrings.HELP_CHARSET_MODE)
+    arg_charset.add_argument("-cf", "--charset-file",
+                             dest="charset_file", help=docstrings.HELP_CHARSET_FILE)
 
     # Mutually exclusive arguments group for input
     arg_input = arg_parser.add_mutually_exclusive_group(required=True)
-    arg_input.add_argument("-pa", "--page-address", dest="page_address", help=docstrings.HELP_PAGE_ADDRESS)
-    arg_input.add_argument("-af", "--address-file", dest="address_file", help=docstrings.HELP_ADDRESS_FILE)
-    arg_input.add_argument("-t", "--text", dest="text_exact", help=docstrings.HELP_TEXT_EXACT)
-    arg_input.add_argument("-tr", "--text-random", dest="text_random", help=docstrings.HELP_TEXT_RANDOM)
-    arg_input.add_argument("-tf", "--text-file", dest="text_file", help=docstrings.HELP_TEXT_FILE)
+    arg_input.add_argument("-pa", "--page-address",
+                           dest="page_address", help=docstrings.HELP_PAGE_ADDRESS)
+    arg_input.add_argument("-af", "--address-file",
+                           dest="address_file", help=docstrings.HELP_ADDRESS_FILE)
+    arg_input.add_argument("-t", "--text",
+                           dest="text_exact", help=docstrings.HELP_TEXT_EXACT)
+    arg_input.add_argument("-tr", "--text-random",
+                           dest="text_random", help=docstrings.HELP_TEXT_RANDOM)
+    arg_input.add_argument("-tf", "--text-file",
+                           dest="text_file", help=docstrings.HELP_TEXT_FILE)
 
     # Now, parse!
     command_line = arg_parser.parse_args()
