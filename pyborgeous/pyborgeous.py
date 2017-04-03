@@ -1,12 +1,13 @@
 import argparse
-import docstrings
 import random
 import string
 from collections import namedtuple
+from pyborgeous import docstrings
 from sys import maxunicode
 from unicodedata import category
 
-__VERSION__ = '0.2.7'
+
+__VERSION__ = '0.3.0'
 
 
 class Page:
@@ -368,6 +369,3 @@ def generate_unicode_string(mode=None):
     # Return a string that consists only of characters that has category not listed in skip_categories
     # As of 2017/04/02, maxunicode on most systems is 1114111
     return ''.join(filter(lambda x: category(x) not in skip_categories, map(chr, range(maxunicode))))
-
-if __name__ == '__main__':
-    main()
