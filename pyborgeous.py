@@ -12,11 +12,11 @@ class Page:
     The page in a book in a shelf in a bookcase in a room in a library object
     """
 
-    Room = namedtuple('Room', 'pages_per_book books_per_shelf shelves_per_bookcase bookcases_per_room')
+    Room = namedtuple('Room', 'PAGES_PER_BOOK BOOKS_PER_SHELF SHELVES_PER_BOOKCASE BOOKCASES_PER_ROOM')
     library_configuration = Room(410, 32, 5, 4)
 
     # We iterate trough library_configuration, that's why page_configuration is separated from it
-    PageContainer = namedtuple('PageContainer', 'characters_per_page characters_per_page_title')
+    PageContainer = namedtuple('PageContainer', 'CHARACTERS_PER_PAGE CHARACTERS_PER_PAGE_TITLE')
     page_configuration = PageContainer(3200, 25)
 
     def __init__(self, encode_string, page_text, address):
@@ -57,12 +57,12 @@ class Page:
         space = ' '
 
         # If text is shorter than 3200 characters, fill the rest with spaces
-        if len(self.page_text) < self.page_configuration.characters_per_page:
-            self.page_text += space * (self.page_configuration.characters_per_page - len(self.page_text))
+        if len(self.page_text) < self.page_configuration.CHARACTERS_PER_PAGE:
+            self.page_text += space * (self.page_configuration.CHARACTERS_PER_PAGE - len(self.page_text))
 
         # If text is longer than 3200 characters, truncate it
-        elif len(self.page_text) > self.page_configuration.characters_per_page:
-            self.page_text = self.page_text[:self.page_configuration.characters_per_page + 1]
+        elif len(self.page_text) > self.page_configuration.CHARACTERS_PER_PAGE:
+            self.page_text = self.page_text[:self.page_configuration.CHARACTERS_PER_PAGE + 1]
 
         self.address = self.calculate_coordinates()
 
@@ -76,16 +76,16 @@ class Page:
         """
 
         # If text is shorter than 3200 characters, fill the rest with random characters on both sides
-        if len(self.page_text) < self.page_configuration.characters_per_page:
-            postfix_range = random.randrange(self.page_configuration.characters_per_page - len(self.page_text) - 1)
-            prefix_range = self.page_configuration.characters_per_page - len(self.page_text) - postfix_range
+        if len(self.page_text) < self.page_configuration.CHARACTERS_PER_PAGE:
+            postfix_range = random.randrange(self.page_configuration.CHARACTERS_PER_PAGE - len(self.page_text) - 1)
+            prefix_range = self.page_configuration.CHARACTERS_PER_PAGE - len(self.page_text) - postfix_range
             prefix = ''.join(random.choice(self.encode_string) for _ in range(prefix_range))
             postfix = ''.join(random.choice(self.encode_string) for _ in range(postfix_range))
             self.page_text = prefix + self.page_text + postfix
 
         # If text is longer than 3200 characters, truncate it
-        elif len(self.page_text) > self.page_configuration.characters_per_page:
-            self.page_text = self.page_text[:self.page_configuration.characters_per_page + 1]
+        elif len(self.page_text) > self.page_configuration.CHARACTERS_PER_PAGE:
+            self.page_text = self.page_text[:self.page_configuration.CHARACTERS_PER_PAGE + 1]
 
         self.address = self.calculate_coordinates()
 
@@ -150,34 +150,34 @@ def main():
 
             return super(CapitalisedHelpFormatter, self).add_usage(usage, actions, groups, prefix)
 
-    arg_parser = argparse.ArgumentParser(description=docstrings.program_description_text,
+    arg_parser = argparse.ArgumentParser(description=docstrings.PROGRAM_DESCRIPTION,
                                          formatter_class=CapitalisedHelpFormatter,
                                          add_help=False,
                                          prog="pyborgeous",
-                                         epilog=docstrings.program_epilog_text)
+                                         epilog=docstrings.PROGRAM_EPILOG)
 
     # Capitalization of protected stuff
     arg_parser._positionals.title = 'Positional arguments'  # I know this is bad
     arg_parser._optionals.title = 'Optional arguments'      # Tell me if you know a better way, please
 
     # Optional arguments
-    arg_parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS, help=docstrings.help_help)
-    arg_parser.add_argument("-v", "--version", action="version", version="%(prog)s", help=docstrings.help_version)
-    arg_parser.add_argument("-o", "--output", dest="output_file", help=docstrings.help_output)
+    arg_parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS, help=docstrings.HELP_HELP)
+    arg_parser.add_argument("-v", "--version", action="version", version="%(prog)s", help=docstrings.HELP_VERSION)
+    arg_parser.add_argument("-o", "--output", dest="output_file", help=docstrings.HELP_OUTPUT)
 
     # Mutually exclusive arguments group for charset
     arg_charset = arg_parser.add_mutually_exclusive_group(required=True)
-    arg_charset.add_argument("-c", "--charset", dest="charset", help=docstrings.help_charset)
-    arg_charset.add_argument("-cm", "--charset-mode", dest="charset_mode", help=docstrings.help_charset_mode)
-    arg_charset.add_argument("-cf", "--charset-file", dest="charset_file", help=docstrings.help_charset_file)
+    arg_charset.add_argument("-c", "--charset", dest="charset", help=docstrings.HELP_CHARSET)
+    arg_charset.add_argument("-cm", "--charset-mode", dest="charset_mode", help=docstrings.HELP_CHARSET_MODE)
+    arg_charset.add_argument("-cf", "--charset-file", dest="charset_file", help=docstrings.HELP_CHARSET_FILE)
 
     # Mutually exclusive arguments group for input
     arg_input = arg_parser.add_mutually_exclusive_group(required=True)
-    arg_input.add_argument("-pa", "--page-address", dest="page_address", help=docstrings.help_page_address)
-    arg_input.add_argument("-af", "--address-file", dest="address_file", help=docstrings.help_address_file)
-    arg_input.add_argument("-t", "--text", dest="text_exact", help=docstrings.help_text_exact)
-    arg_input.add_argument("-tr", "--text-random", dest="text_random", help=docstrings.help_text_random)
-    arg_input.add_argument("-tf", "--text-file", dest="text_file", help=docstrings.help_text_file)
+    arg_input.add_argument("-pa", "--page-address", dest="page_address", help=docstrings.HELP_PAGE_ADDRESS)
+    arg_input.add_argument("-af", "--address-file", dest="address_file", help=docstrings.HELP_ADDRESS_FILE)
+    arg_input.add_argument("-t", "--text", dest="text_exact", help=docstrings.HELP_TEXT_EXACT)
+    arg_input.add_argument("-tr", "--text-random", dest="text_random", help=docstrings.HELP_TEXT_RANDOM)
+    arg_input.add_argument("-tf", "--text-file", dest="text_file", help=docstrings.HELP_TEXT_FILE)
 
     # Now, parse!
     command_line = arg_parser.parse_args()
@@ -200,7 +200,7 @@ def main():
         return DataFile(command_line.charset_file).load()
 
     else:
-        raise NotImplementedError("This mode is not implemented yet")
+        raise NotImplementedError(docstrings.ERROR_CHARSET_MODE_NOT_IMPLEMENTED)
 
     # Figure out what text to use if any specified according to -t, -tr, -tf arguments
     if command_line.text_exact:                                                         # -t
@@ -229,11 +229,11 @@ def main():
 
     # Validate if page_text exists and consists of characters
     if page_text and is_invalid_input(page_text, characters):
-        raise NotImplementedError("There is at least one character in text that is not in the charset")
+        raise NotImplementedError(docstrings.ERROR_TEXT_NOT_IN_CHARSET)
 
     # Validate if page_address exists and consists of characters
     if page_address and is_invalid_input(page_address, characters):
-        raise NotImplementedError("There is at least one character in address that is not in the charset")
+        raise NotImplementedError(docstrings.ERROR_ADDRESS_NOT_IN_CHARSET)
 
     # Instantiate a page, either page_text or page_address should be None
     current_page = Page(characters, page_text, page_address)
