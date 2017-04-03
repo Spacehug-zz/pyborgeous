@@ -6,12 +6,15 @@ pyborgeous is an implementation of https://en.wikipedia.org/wiki/The_Library_of_
 The library contains all the pages of all the books ever written,
 the books being written, and the books that will be written in the future.
 
+**Install**:
+``pip install git+https://github.com/Spacehug/pyborgeous.git``
+
 
 
 
 **Example**:
 
-``pyborgeous -m unicode -s 'The first colony on Mars was founded in 2027.'``
+``pyborgeous -m unicode -t 'The first colony on Mars was founded in 2027.'``
 
 **Produces address**:
 
