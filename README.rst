@@ -22,5 +22,5 @@ the books being written, and the books that will be written in the future.
 ``<Really long string of symbols>       2       0       22      152``
 
 
-Which means the page with this text: "The first colony on Mars was founded in 2027." is in that room (long address)
+Which means the page with the text "The first colony on Mars was founded in 2027." is in the room number (long address),
 3rd bookcase, 1st shelf from the top, 23th book from the left, on the page number 153.

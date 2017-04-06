@@ -7,7 +7,7 @@ from sys import maxunicode
 from unicodedata import category
 
 
-__VERSION__ = '0.3.0'
+__VERSION__ = '0.3.1'
 
 
 class Page:
@@ -50,68 +50,51 @@ class Page:
 
         return self.page_text
 
-    def get_address_by_page_text(self):
+    def get_address_by_page_text(self, mode):
         """
-        Fills the rest of page with spaces,
-        then transforms it to magic number,
-        and then to page coordinates using calculate_coordinates()
-        """
-
-        space = ' '
-
-        # If text is shorter than 3200 characters, fill the rest with spaces
-        if len(self.page_text) < self.page_configuration.CHARACTERS_PER_PAGE:
-            self.page_text += space * (self.page_configuration.CHARACTERS_PER_PAGE - len(self.page_text))
-
-        # If text is longer than 3200 characters, truncate it
-        elif len(self.page_text) > self.page_configuration.CHARACTERS_PER_PAGE:
-            self.page_text = self.page_text[:self.page_configuration.CHARACTERS_PER_PAGE + 1]
-
-        self.address = self.calculate_coordinates()
-
-        return self.address
-
-    def get_address_by_page_text_random(self):
-        """
-        Fills the page with random characters before and after the given string,
-        then transforms it to magic number,
-        and then to page coordinates using calculate_coordinates()
-        """
-
-        # If text is shorter than 3200 characters, fill the rest with random characters on both sides
-        if len(self.page_text) < self.page_configuration.CHARACTERS_PER_PAGE:
-            postfix_range = random.randrange(self.page_configuration.CHARACTERS_PER_PAGE - len(self.page_text) - 1)
-            prefix_range = self.page_configuration.CHARACTERS_PER_PAGE - len(self.page_text) - postfix_range
-            prefix = ''.join(random.choice(self.encode_string) for _ in range(prefix_range))
-            postfix = ''.join(random.choice(self.encode_string) for _ in range(postfix_range))
-            self.page_text = prefix + self.page_text + postfix
-
-        # If text is longer than 3200 characters, truncate it
-        elif len(self.page_text) > self.page_configuration.CHARACTERS_PER_PAGE:
-            self.page_text = self.page_text[:self.page_configuration.CHARACTERS_PER_PAGE + 1]
-
-        self.address = self.calculate_coordinates()
-
-        return self.address
-
-    def calculate_coordinates(self):
-        """
-        Transforms page_text to page coordinates using ceil division
+        Fills the page with spaces or with random characters (depends on the mode),
+        then transforms it to magic_number,
+        then to page coordinates using ceil division
         string ~> int ~> [Base number, int, int, int, int] 
         Format of the resulting address is: encoded room \t bookcase \t shelf \t book \t page
         """
 
         address = []
+        space = ' '
+        page_text_length = len(self.page_text)
+
+        # If text is shorter than 3200 characters, fill the rest with spaces
+        if page_text_length < self.page_configuration.CHARACTERS_PER_PAGE and mode == 'spaces':
+            self.page_text += space * (self.page_configuration.CHARACTERS_PER_PAGE - page_text_length)
+
+        # If text is shorter than 3200 characters, fill the rest with random characters on both sides
+        elif page_text_length < self.page_configuration.CHARACTERS_PER_PAGE and mode == 'random':
+            postfix_range = random.randrange(self.page_configuration.CHARACTERS_PER_PAGE - page_text_length - 1)
+            prefix_range = self.page_configuration.CHARACTERS_PER_PAGE - page_text_length - postfix_range
+            prefix = ''.join(random.choice(self.encode_string) for _ in range(prefix_range))
+            postfix = ''.join(random.choice(self.encode_string) for _ in range(postfix_range))
+            self.page_text = prefix + self.page_text + postfix
+
+        # If text is longer than 3200 characters, truncate it
+        elif page_text_length > self.page_configuration.CHARACTERS_PER_PAGE:
+            self.page_text = self.page_text[:self.page_configuration.CHARACTERS_PER_PAGE + 1]
+
+        # If nothing happened and text is exact 3200 characters long, then the mode specified was wrong (which is weird)
+        elif page_text_length != self.page_configuration.CHARACTERS_PER_PAGE:
+            raise NotImplementedError(docstrings.ERROR_PAGE_TO_ADDRESS_UNKNOWN_MODE)
+
         magic_number = text_to_integer(self.page_text)
 
         for value in self.library_configuration:
+
             result_value = magic_number % value
             address.append(str(result_value))
             magic_number = - ((magic_number - result_value) // - value)  # Faster than 'from math import ceil'
 
         address.append(integer_to_base(magic_number, self.encode_string))
+        self.address = '\t'.join(reversed(address))
 
-        return '\t'.join(reversed(address))
+        return self.address
 
 
 class DataFile:
@@ -138,7 +121,7 @@ class DataFile:
 def main():
     """
     Main logic here
-    Parses command line arguments then executes Page methods, prints the data and writes it to a file if specified
+    Parses command line arguments then executes Page methods, prints the data and writes it to a file if -o specified
     """
 
     class CapitalisedHelpFormatter(argparse.RawTextHelpFormatter):
@@ -260,11 +243,11 @@ def main():
         data_to_write = current_page.page_text
 
     elif page_text and (command_line.text_exact or command_line.text_file):
-        current_page.get_address_by_page_text()
+        current_page.get_address_by_page_text('spaces')
         data_to_write = current_page.address
 
     elif page_text and command_line.text_random:
-        current_page.get_address_by_page_text_random()
+        current_page.get_address_by_page_text('random')
         data_to_write = current_page.address
 
     if command_line.output_file:
@@ -366,6 +349,6 @@ def generate_unicode_string(mode=None):
     else:
         raise NotImplementedError("""Unknown mode specified for unicode string generator""")
 
-    # Return a string that consists only of characters that has category not listed in skip_categories
-    # As of 2017/04/02, maxunicode on most systems is 1114111
+    # Return a string that consists only of characters that has a category that is not listed in skip_categories
+    # As of 2017/04/06, maxunicode on most systems is 1114111
     return ''.join(filter(lambda x: category(x) not in skip_categories, map(chr, range(maxunicode))))

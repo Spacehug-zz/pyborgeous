@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pyborgeous',
-    version='0.3.0',
+    version='0.3.1',
     description='Pyborgeous is an implementation of Jorge Luis Borges\' Library of Babel',
     long_description=long_description,
     url='https://github.com/Spacehug/pyborgeous',

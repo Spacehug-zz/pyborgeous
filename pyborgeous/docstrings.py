@@ -75,6 +75,10 @@ Usage: -tf 'text.txt'
 Note: Text longer than 3200 symbols will be truncated
 
 """
+ERROR_PAGE_TO_ADDRESS_UNKNOWN_MODE = """
+Unknown mode specified with page less than 3200 characters
+
+"""
 ERROR_CHARSET_MODE_NOT_IMPLEMENTED = """
 This mode is not implemented yet
 
