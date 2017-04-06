@@ -1,13 +1,9 @@
 import argparse
 import random
-import string
 from collections import namedtuple
-from pyborgeous import docstrings
-from sys import maxunicode
-from unicodedata import category
+from pyborgeous import docstrings, codestrings
 
-
-__VERSION__ = '0.3.1'
+__VERSION__ = '0.4.1'
 
 
 class Page:
@@ -15,22 +11,21 @@ class Page:
     The page in a book in a shelf in a bookcase in a room in a library object
     """
 
+    # We iterate trough library_configuration, that's why it is separated from page_configuration
     Room = namedtuple('Room', 'PAGES_PER_BOOK BOOKS_PER_SHELF SHELVES_PER_BOOKCASE BOOKCASES_PER_ROOM')
     library_configuration = Room(410, 32, 5, 4)
-
-    # We iterate trough library_configuration, that's why page_configuration is separated from it
     PageContainer = namedtuple('PageContainer', 'CHARACTERS_PER_PAGE CHARACTERS_PER_PAGE_TITLE')
     page_configuration = PageContainer(3200, 25)
 
-    def __init__(self, encode_string, page_text, address):
+    def __init__(self, address_encode_string, page_encode_string, page_text, page_address):
         """
         Instantiates the object with encode string,
         and address if there is no page text provided
         or page text if there is no address provided
         """
-
-        self.encode_string = encode_string
-        self.address = address
+        self.ADDRESS_ENCODE_STRING = address_encode_string
+        self.PAGE_ENCODE_STRING = page_encode_string
+        self.page_address = page_address
         self.page_text = page_text
 
     def get_page_text_by_address(self):
@@ -39,8 +34,13 @@ class Page:
         [Base number, int, int, int, int] ~> int ~> string 
         """
 
-        address = self.address.split('\t')
-        magic_number = base_to_integer(address[0], self.encode_string)
+        # Check if -cm unicode_short is in effect
+        if self.ADDRESS_ENCODE_STRING:
+            address = self.ADDRESS_ENCODE_STRING.split('\t')
+            magic_number = base_to_integer(address[0], self.PAGE_ENCODE_STRING)
+        else:
+            address = self.PAGE_ENCODE_STRING.split('\t')
+            magic_number = base_to_integer(address[0], self.ADDRESS_ENCODE_STRING)
 
         for config, address_item in zip(reversed(self.library_configuration), address[1:]):
 
@@ -71,8 +71,8 @@ class Page:
         elif page_text_length < self.page_configuration.CHARACTERS_PER_PAGE and mode == 'random':
             postfix_range = random.randrange(self.page_configuration.CHARACTERS_PER_PAGE - page_text_length - 1)
             prefix_range = self.page_configuration.CHARACTERS_PER_PAGE - page_text_length - postfix_range
-            prefix = ''.join(random.choice(self.encode_string) for _ in range(prefix_range))
-            postfix = ''.join(random.choice(self.encode_string) for _ in range(postfix_range))
+            prefix = ''.join(random.choice(self.PAGE_ENCODE_STRING) for _ in range(prefix_range))
+            postfix = ''.join(random.choice(self.PAGE_ENCODE_STRING) for _ in range(postfix_range))
             self.page_text = prefix + self.page_text + postfix
 
         # If text is longer than 3200 characters, truncate it
@@ -91,10 +91,15 @@ class Page:
             address.append(str(result_value))
             magic_number = - ((magic_number - result_value) // - value)  # Faster than 'from math import ceil'
 
-        address.append(integer_to_base(magic_number, self.encode_string))
-        self.address = '\t'.join(reversed(address))
+        # Check if -cm unicode_short is in effect
+        if self.ADDRESS_ENCODE_STRING:
+            address.append(integer_to_base(magic_number, self.ADDRESS_ENCODE_STRING))
+        else:
+            address.append(integer_to_base(magic_number, self.PAGE_ENCODE_STRING))
 
-        return self.address
+        self.page_address = '\t'.join(reversed(address))
+
+        return self.page_address
 
 
 class DataFile:
@@ -142,9 +147,10 @@ def main():
                                          prog="pyborgeous",
                                          epilog=docstrings.PROGRAM_EPILOG)
 
-    # Capitalization of protected stuff
-    arg_parser._positionals.title = 'Positional arguments'  # I know this is bad
-    arg_parser._optionals.title = 'Optional arguments'      # Tell me if you know a better way, please
+    # Cosmetic capitalization of protected stuff
+    # I know this is bad, tell me if you know a better way please
+    arg_parser._positionals.title = 'Positional arguments'
+    arg_parser._optionals.title = 'Optional arguments'
 
     # Optional arguments
     arg_parser.add_argument("-h", "--help", action="help",
@@ -179,22 +185,29 @@ def main():
     # Now, parse!
     command_line = arg_parser.parse_args()
 
-    charset_modes = {'binary': '01',
-                     'morse': ' .-',
-                     'borges': 'abcdefghijlmnoprstuvyz, .',
-                     'classic': string.ascii_lowercase + ', .',
-                     'full': string.digits + string.ascii_letters + ' ' + string.punctuation,
-                     'unicode': generate_unicode_string('regular')}
+    charset_modes = {'binary': codestrings.BINARY,
+                     'morse': codestrings.MORSE,
+                     'borges': codestrings.BORGES,
+                     'classic': codestrings.CLASSIC,
+                     'full': codestrings.FULL,
+                     'unicode': codestrings.UNICODE_REGULAR,
+                     'unicode_short': codestrings.UNICODE_REGULAR}
 
     # Figure out what characters to use according to arg_charset group
+    address_characters = None
+
     if command_line.charset_mode and command_line.charset_mode in charset_modes:        # -cm
-        characters = charset_modes[command_line.charset_mode]
+        if command_line.charset_mode == 'unicode_short':
+            page_characters = charset_modes[command_line.charset_mode]
+            address_characters = codestrings.UNICODE_ADDRESS  # Different charset here
+        else:
+            page_characters = charset_modes[command_line.charset_mode]
 
     elif command_line.charset:                                                          # -c
-        characters = command_line.charset
+        page_characters = command_line.charset
 
     elif command_line.charset_file:                                                     # -cf
-        return DataFile(command_line.charset_file).load()
+        page_characters = DataFile(command_line.charset_file).load()
 
     else:
         raise NotImplementedError(docstrings.ERROR_CHARSET_MODE_NOT_IMPLEMENTED)
@@ -225,15 +238,15 @@ def main():
         page_address = None
 
     # Validate if page_text exists and consists of characters
-    if page_text and is_invalid_input(page_text, characters):
+    if page_text and is_invalid_input(page_text, page_characters):
         raise NotImplementedError(docstrings.ERROR_TEXT_NOT_IN_CHARSET)
 
     # Validate if page_address exists and consists of characters
-    if page_address and is_invalid_input(page_address, characters):
+    if page_address and is_invalid_input(page_address, page_characters):
         raise NotImplementedError(docstrings.ERROR_ADDRESS_NOT_IN_CHARSET)
 
     # Instantiate a page, either page_text or page_address should be None
-    current_page = Page(characters, page_text, page_address)
+    current_page = Page(address_characters, page_characters, page_text, page_address)
 
     # Getting data out
     data_to_write = 'SOMETHING WENT WRONG'  # Just in case
@@ -244,11 +257,11 @@ def main():
 
     elif page_text and (command_line.text_exact or command_line.text_file):
         current_page.get_address_by_page_text('spaces')
-        data_to_write = current_page.address
+        data_to_write = current_page.page_address
 
     elif page_text and command_line.text_random:
         current_page.get_address_by_page_text('random')
-        data_to_write = current_page.address
+        data_to_write = current_page.page_address
 
     if command_line.output_file:
         storage = DataFile(command_line.output_file, data_to_write)
@@ -324,31 +337,3 @@ def is_invalid_input(string_one, string_two):
             return True
 
     return False
-
-
-def generate_unicode_string(mode=None):
-    """
-    Generates unicode string that can be used to encode and decode integers
-    """
-
-    # Used for page generation
-    if mode == 'regular' or not mode:
-        # No control characters
-        skip_categories = ('Cc', 'Cf', 'Cs', 'Co', 'Cn',
-                           'Zl', 'Zp')
-
-    # Used for address generation, not implemented yet
-    elif mode == 'address':
-        # No control, no marks, no punctuation, no symbols, no separators
-        skip_categories = ('Cc', 'Cf', 'Cs', 'Co', 'Cn',
-                           'Mn', 'Mc', 'Me',
-                           'Pc', 'Pd', 'Ps', 'Pe', 'Pi', 'Pf', 'Po',
-                           'Sm', 'Sc', 'Sk', 'So',
-                           'Zl', 'Zs', 'Zp',)
-
-    else:
-        raise NotImplementedError("""Unknown mode specified for unicode string generator""")
-
-    # Return a string that consists only of characters that has a category that is not listed in skip_categories
-    # As of 2017/04/06, maxunicode on most systems is 1114111
-    return ''.join(filter(lambda x: category(x) not in skip_categories, map(chr, range(maxunicode))))

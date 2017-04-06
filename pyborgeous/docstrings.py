@@ -27,22 +27,22 @@ Usage: -o 'result.txt'
 
 """
 HELP_CHARSET_MODE = """
-Build the library in given mode
-Usage: -m borges
-Choices: binary, morse, borges, classic, full, unicode
+Build the library using pre-defined charset mode.
+Usage: -cm borges
+Choices: binary, morse, borges, classic, full, unicode, unicode_short
 If you want to use custom charset, use -c 'abcde' or -cf 'charset.txt'
 
 """
 HELP_CHARSET = """
-Build the library using custom charset
+Build the library using any custom charset
 Usage: -c '0123456789ABCDEF'
 Warning: don't use \\t (ASCII TAB) control character, or there will be trouble.
 
 """
 HELP_CHARSET_FILE = """
-Build the library using custom charset from a file
+Build the library using a custom charset from the file
 Usage: -cf 'charset.txt'
-Warning: don't use \\t (ASCII TAB) control character in your file, or there will be trouble.
+Note: don't use \\t (ASCII TAB) control character in your file, or there will be trouble with address formatting
 
 """
 HELP_PAGE_ADDRESS = """
@@ -51,20 +51,20 @@ Usage: -pa <LONG ADDRESS>
 
 """
 HELP_ADDRESS_FILE = """
-Find a page by address from a file
-Format should be: room\\tbookcase[1-4]\\tshelf[1-5]\\tbook[1-32]\\tpage_number[1-410]
+Find a page by an address from the file
+Format should be: room\\tbookcase[0-3]\\tshelf[0-4]\\tbook[0-31]\\tpage_number[0-409]
 \\t is ASCII TAB control character, not literal '\\t'
 Usage: -af 'address.txt'
 
 """
 HELP_TEXT_EXACT = """
-Find a page that contains only the text given and nothing else
+Find a page that contains only the text and nothing else (the rest of a page is filled with spaces)
 Usage: -t 'The first colony on Mars was founded in 2031'
 Note: Text longer than 3200 symbols will be truncated
 
 """
 HELP_TEXT_RANDOM = """
-Find a page that contains the text given, along with random words/symbols
+Find a page that contains the text with random words/symbols
 Usage: -tr 'The first colony on Mars was founded in 2031.'
 Note: Text longer than 3200 symbols will be truncated
 
@@ -76,18 +76,19 @@ Note: Text longer than 3200 symbols will be truncated
 
 """
 ERROR_PAGE_TO_ADDRESS_UNKNOWN_MODE = """
-Unknown mode specified with page less than 3200 characters
+An unknown page filling mode specified for the page less than 3200 characters
+Seeing this error message is not normal
 
 """
 ERROR_CHARSET_MODE_NOT_IMPLEMENTED = """
-This mode is not implemented yet
+Either this mode is not implemented, or you have a typo in a case-sensitive mode name
 
 """
 ERROR_TEXT_NOT_IN_CHARSET = """
-There is at least one character in text that is not in the charset
+There is at least one character in the text that is not in the charset
 
 """
 ERROR_ADDRESS_NOT_IN_CHARSET = """
-There is at least one character in address that is not in the charset
+There is at least one character in the address that is not in the charset
 
 """
