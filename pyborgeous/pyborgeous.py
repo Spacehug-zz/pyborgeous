@@ -1,9 +1,11 @@
 import argparse
 import random
 from collections import namedtuple
-from pyborgeous import docstrings, codestrings
+from pyborgeous import codestrings
+from pyborgeous import docstrings
 
-__VERSION__ = '0.4.1'
+
+__VERSION__ = '0.5.0'
 
 
 class Page:
@@ -31,16 +33,16 @@ class Page:
     def get_page_text_by_address(self):
         """
         Transforms coordinates back to page text
-        [Base number, int, int, int, int] ~> int ~> string 
+        [Base number, int, int, int, int] ~> int ~> string
         """
 
         # Check if -cm unicode_short is in effect
         if self.ADDRESS_ENCODE_STRING:
-            address = self.ADDRESS_ENCODE_STRING.split('\t')
-            magic_number = base_to_integer(address[0], self.PAGE_ENCODE_STRING)
-        else:
-            address = self.PAGE_ENCODE_STRING.split('\t')
+            address = self.page_address.split('\t')
             magic_number = base_to_integer(address[0], self.ADDRESS_ENCODE_STRING)
+        else:
+            address = self.page_address.split('\t')
+            magic_number = base_to_integer(address[0], self.PAGE_ENCODE_STRING)
 
         for config, address_item in zip(reversed(self.library_configuration), address[1:]):
 
@@ -55,8 +57,8 @@ class Page:
         Fills the page with spaces or with random characters (depends on the mode),
         then transforms it to magic_number,
         then to page coordinates using ceil division
-        string ~> int ~> [Base number, int, int, int, int] 
-        Format of the resulting address is: encoded room \t bookcase \t shelf \t book \t page
+        string ~> int ~> [Base number, int, int, int, int]
+        Format of the resulting address is: encoded room\tbookcase\tshelf\tbook\tpage
         """
 
         address = []
@@ -112,12 +114,14 @@ class DataFile:
         self.data = data
 
     def load(self):
+
         with open(self.file_name, 'r', encoding='utf-8') as input_file:
             self.data = input_file.read()
 
         return self.data
 
     def save(self):
+
         with open(self.file_name, 'w', encoding='utf-8') as output_file:
             output_file.writelines(self.data)
             print("Output saved in", self.file_name)
@@ -220,8 +224,8 @@ def main():
         page_text = command_line.text_random
 
     elif command_line.text_file:                                                        # -tf
-        text_file = DataFile(command_line.text_file)
-        page_text = text_file.load()
+        text_file_object = DataFile(command_line.text_file)
+        page_text = text_file_object.load()
 
     else:
         page_text = None
@@ -231,8 +235,8 @@ def main():
         page_address = command_line.page_address
 
     elif command_line.address_file:                                                     # -af
-        address_file = DataFile(command_line.address_file)
-        page_address = address_file.load()
+        address_file_object = DataFile(command_line.address_file)
+        page_address = address_file_object.load()
 
     else:
         page_address = None

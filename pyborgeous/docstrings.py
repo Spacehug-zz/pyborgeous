@@ -8,8 +8,6 @@ PROGRAM_EPILOG = """
 |  _|_  |___|___|_| |_  |___|___|___|___|
 |_| |___|           |___|              
 
-Check http://github.com/Spacehug/pyborgeous for updates
-
 """
 HELP_HELP = """
 Show this help message and exit
@@ -36,13 +34,13 @@ If you want to use custom charset, use -c 'abcde' or -cf 'charset.txt'
 HELP_CHARSET = """
 Build the library using any custom charset
 Usage: -c '0123456789ABCDEF'
-Warning: don't use \\t (ASCII TAB) control character, or there will be trouble.
+Don't use \\t (ASCII TAB) control character in your charset, or there will be trouble with address' formatting
 
 """
 HELP_CHARSET_FILE = """
 Build the library using a custom charset from the file
 Usage: -cf 'charset.txt'
-Note: don't use \\t (ASCII TAB) control character in your file, or there will be trouble with address formatting
+Don't use \\t (ASCII TAB) control character in your file, or there will be trouble with address' formatting
 
 """
 HELP_PAGE_ADDRESS = """
@@ -60,13 +58,13 @@ Usage: -af 'address.txt'
 HELP_TEXT_EXACT = """
 Find a page that contains only the text and nothing else (the rest of a page is filled with spaces)
 Usage: -t 'The first colony on Mars was founded in 2031'
-Note: Text longer than 3200 symbols will be truncated
+Text longer than 3200 symbols will be truncated
 
 """
 HELP_TEXT_RANDOM = """
-Find a page that contains the text with random words/symbols
+Find a page that contains the text plus random words/symbols
 Usage: -tr 'The first colony on Mars was founded in 2031.'
-Note: Text longer than 3200 symbols will be truncated
+Text longer than 3200 symbols will be truncated
 
 """
 HELP_TEXT_FILE = """

@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pyborgeous',
-    version='0.4.1',
+    version='0.5.0',
     description='Pyborgeous is an implementation of Jorge Luis Borges\' Library of Babel',
     long_description=long_description,
     url='https://github.com/Spacehug/pyborgeous',
@@ -20,16 +20,13 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.6.1',
     ],
-    keywords='jorge luis borges library unicode',
+    keywords='Gorge Luis Borges Library of Babel unicode',
     packages=find_packages(),
+    install_requires=['markovify'],
     include_package_data=True,
-    zip_safe=False,
-    entry_points={
-        'console_scripts': ['pyborgeous=pyborgeous:main'],
-    },
+    zip_safe=True,
+    entry_points={'console_scripts': ['pyborgeous=pyborgeous:main']},
 )
